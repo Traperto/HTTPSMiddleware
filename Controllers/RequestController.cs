@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HTTPSMiddleware.Controllers
 {
@@ -13,7 +13,7 @@ namespace HTTPSMiddleware.Controllers
     public class RequestController : ControllerBase
     {
         private readonly string[] ALLOWED_METHODS = {"GET", "DELETE", "POST", "PUT", "PATCH"};
-        private readonly string[] METHODS_NEEDING_PAYLOAD = {"GET", "DELETE"};
+        private readonly string[] METHODS_NEEDING_PAYLOAD = {"POST", "PUT", "PATCH"};
 
         public class RequestData
         {
@@ -34,12 +34,12 @@ namespace HTTPSMiddleware.Controllers
                 return BadRequest();
             }
 
-            if (ALLOWED_METHODS.IndexOf(value.Method) == -1)
+            if (!ALLOWED_METHODS.Contains(value.Method))
             {
                 return BadRequest($"{value.Method} is not a valid HTTP-method.");
             }
 
-            if (METHODS_NEEDING_PAYLOAD.IndexOf(value.Method) == -1 && value.Payload == null)
+            if (METHODS_NEEDING_PAYLOAD.Contains(value.Method) && value.Payload == null)
             {
                 return BadRequest($"Method {value.Method} needs to have a payload but doesn't.");
             }
